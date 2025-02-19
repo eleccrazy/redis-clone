@@ -1,2 +1,5 @@
 note.txt
 redis_env/
+__pycache__/
+*.pyc
+*.pyo
