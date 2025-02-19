@@ -20,6 +20,11 @@ Created by Gizachew Bayness Kassa on 2025-02-19
 """
 
 from asyncio import StreamReader, StreamWriter, run, start_server
+from typing import Dict
+
+from src.commands.get_command import GetCommand
+from src.commands.set_command import SetCommand
+from src.data.storage import Storage
 
 
 class RedisCloneServer:
@@ -35,6 +40,7 @@ class RedisCloneServer:
     def __init__(self, host: str = "127.0.0.1", port: int = 6379):
         self.host = host
         self.port = port
+        self.storage = Storage()  # Initialize the storage for key-value pairs
 
     async def handle_client(self, reader: StreamReader, writer: StreamWriter):
         """
@@ -56,7 +62,10 @@ class RedisCloneServer:
                 message = data.decode().strip()
                 # Log and echo the received message back to the client (for initial testing)
                 print(f"Received from {addr}: {message}")
-                response = f"Echo: {message}\n"
+
+                # Process the command
+                response = await self.process_command(command=message)
+
                 writer.write(response.encode())  # Send the response back to the client
                 await writer.drain()  # Flush the write buffer
         except Exception as e:
@@ -65,6 +74,28 @@ class RedisCloneServer:
             writer.close()  # Close the connection
             await writer.wait_closed()  # Wait for the connection to close
             print(f"Connection from {addr} has been closed.")  # Log connection closure
+
+    async def process_command(self, command: str) -> str:
+        """
+        Process a command received from the client.
+
+        Parses the command and executes the corresponding action.
+        Returns the response to be sent back to the client.
+        """
+        parts = command.split(" ")
+        command_name = parts[0].upper()  # Get the command name
+        args = parts[1:]  # Get the command arguments
+
+        # Route commands
+        print(f"command: {command_name}, args: {args}")
+        if command_name == "SET":
+            handler = SetCommand()
+        elif command_name == "GET":
+            handler = GetCommand()
+        else:
+            return "Unknown command"
+
+        return await handler.execute(self.storage, *args)
 
     async def start(self):
         """
