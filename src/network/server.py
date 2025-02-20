@@ -20,10 +20,8 @@ Created by Gizachew Bayness Kassa on 2025-02-19
 """
 
 from asyncio import StreamReader, StreamWriter, run, start_server
-from typing import Dict
 
-from src.commands.get_command import GetCommand
-from src.commands.set_command import SetCommand
+from src.commands.command_processor import process_command
 from src.data.storage import Storage
 
 
@@ -64,7 +62,7 @@ class RedisCloneServer:
                 print(f"Received from {addr}: {message}")
 
                 # Process the command
-                response = await self.process_command(command=message)
+                response = await process_command(command=message, storage=self.storage)
 
                 writer.write(response.encode())  # Send the response back to the client
                 await writer.drain()  # Flush the write buffer
@@ -74,28 +72,6 @@ class RedisCloneServer:
             writer.close()  # Close the connection
             await writer.wait_closed()  # Wait for the connection to close
             print(f"Connection from {addr} has been closed.")  # Log connection closure
-
-    async def process_command(self, command: str) -> str:
-        """
-        Process a command received from the client.
-
-        Parses the command and executes the corresponding action.
-        Returns the response to be sent back to the client.
-        """
-        parts = command.split(" ")
-        command_name = parts[0].upper()  # Get the command name
-        args = parts[1:]  # Get the command arguments
-
-        # Route commands
-        print(f"command: {command_name}, args: {args}")
-        if command_name == "SET":
-            handler = SetCommand()
-        elif command_name == "GET":
-            handler = GetCommand()
-        else:
-            return "Unknown command"
-
-        return await handler.execute(self.storage, *args)
 
     async def start(self):
         """
@@ -110,13 +86,3 @@ class RedisCloneServer:
         async with server:
             # Serve clients indefinitely
             await server.serve_forever()
-
-
-if __name__ == "__main__":
-    # Start the server with default host and port
-    server = RedisCloneServer(host="127.0.0.1", port=6378)
-    try:
-        run(server.start())  # Run the server indefinitely
-    except KeyboardInterrupt:
-        # Gracefully shut down the server on keyboard interrupt
-        print("Server shut down gracefully.")

@@ -9,7 +9,7 @@ Created by Gizachew Bayness Kassa on 2025-02-19
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.storage.storage import Storage
+from src.data.storage import Storage
 
 
 class BaseCommand(ABC):
