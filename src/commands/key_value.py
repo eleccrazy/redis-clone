@@ -53,3 +53,23 @@ class GetCommand(BaseCommand):
 
         key = args[0]
         return storage.get(key)
+
+
+class DeleteCommand(BaseCommand):
+    """
+    Execute the DEL command with the given key name
+    """
+
+    async def execute(self, storage: Storage, *args: List[str]) -> str:
+        # Check if key name is passed
+        if len(args) != 1:
+            return "ERR wrong number of arguments for 'DEL' command"
+        key = args[0]
+
+        # Check if key exists
+        if storage.get(key) == "(nil)":
+            return "(integer) 0"
+
+        # Delete the key and return 1 to indicate one key was deleted
+        storage.delete(key)
+        return "(integer) 1"

@@ -10,7 +10,7 @@ Created by Gizachew Bayness Kassa on 2025-02-20
 
 from src.data.storage import Storage
 
-from .key_value import GetCommand, SetCommand
+from .key_value import DeleteCommand, GetCommand, SetCommand
 
 
 async def process_command(command: str, storage: Storage) -> str:
@@ -33,6 +33,8 @@ async def process_command(command: str, storage: Storage) -> str:
         handler = SetCommand()
     elif command_name == "GET":
         handler = GetCommand()
+    elif command_name == "DEL":
+        handler = DeleteCommand()
     else:
         return "Unknown command"
 
