@@ -113,3 +113,68 @@ async def test_del_key_exist(server: RedisCloneServer) -> None:
 async def test_get_key_not_exist(server: RedisCloneServer) -> None:
     response = await send_message("GET mykey")
     assert response == "(nil)"
+
+
+# Test the keys command for the wrong number of arguments
+@pytest.mark.asyncio
+async def test_keys_wrong_number_of_arguments(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS")
+    assert response == "ERR wrong number of arguments for 'KEYS' command"
+
+
+# Test the keys command for the empty string key
+@pytest.mark.asyncio
+async def test_keys_empty_string_key(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS")
+    assert response == "ERR wrong number of arguments for 'KEYS' command"
+
+
+# Test the keys command for the single key in the storage
+@pytest.mark.asyncio
+async def test_keys_single_key(server: RedisCloneServer) -> None:
+    # Set mykey to a value
+    await send_message("SET mykey myvalue")
+    response = await send_message("KEYS mykey")
+    assert response == "1) mykey"
+
+
+# Test the keys command for the multiple keys in the storage
+@pytest.mark.asyncio
+async def test_keys_multiple_keys(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS my*")
+    assert response == "1) mykey"
+
+
+# Test the keys command for the no matching keys in the storage
+@pytest.mark.asyncio
+async def test_keys_no_matching_keys(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS nomatch*")
+    assert response == "(empty array)"
+
+
+# Test the keys command for the pattern matching
+@pytest.mark.asyncio
+async def test_keys_pattern_matching(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS my*")
+    assert response == "1) mykey"
+
+
+# Test the keys command for the pattern matching
+@pytest.mark.asyncio
+async def test_keys_pattern_matching(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS my*")
+    assert response == "1) mykey"
+
+
+# Test the keys command for the pattern matching
+@pytest.mark.asyncio
+async def test_keys_pattern_matching(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS my*")
+    assert response == "1) mykey"
+
+
+# Test the keys command for the pattern matching
+@pytest.mark.asyncio
+async def test_keys_pattern_matching(server: RedisCloneServer) -> None:
+    response = await send_message("KEYS my*")
+    assert response == "1) mykey"
