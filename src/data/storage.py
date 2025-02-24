@@ -29,3 +29,7 @@ class Storage:
     def delete(self, key: str) -> str:
         """Deletes a key if it exists."""
         return self.data.pop(key, "(nil)")
+
+    def keys(self) -> str:
+        """Returns a list of all keys in the storage."""
+        return list(self.data.keys())

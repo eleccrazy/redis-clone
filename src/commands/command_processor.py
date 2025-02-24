@@ -11,6 +11,7 @@ Created by Gizachew Bayness Kassa on 2025-02-20
 from src.data.storage import Storage
 
 from .key_value import DeleteCommand, GetCommand, SetCommand
+from .keys_command import KeysCommand
 
 
 async def process_command(command: str, storage: Storage) -> str:
@@ -35,6 +36,8 @@ async def process_command(command: str, storage: Storage) -> str:
         handler = GetCommand()
     elif command_name == "DEL":
         handler = DeleteCommand()
+    elif command_name == "KEYS":
+        handler = KeysCommand()
     else:
         return "Unknown command"
 

@@ -71,3 +71,45 @@ async def test_empty_message(server: RedisCloneServer) -> None:
     """Test sending an empty message returns an appropriate error message."""
     response = await send_message("")
     assert response == "Unknown command"
+
+
+# Test the set command for the wrong number of arguments
+@pytest.mark.asyncio
+async def test_set_wrong_number_of_arguments(server: RedisCloneServer) -> None:
+    response = await send_message("SET key")
+    assert response == "ERR wrong number of arguments for 'SET' command"
+
+
+# Test the get command for the wrong number of arguments
+@pytest.mark.asyncio
+async def test_get_wrong_number_of_arguments(server: RedisCloneServer) -> None:
+    response = await send_message("GET")
+    assert response == "ERR wrong number of arguments for 'GET' command"
+
+
+# Test the del command for the wrong number of arguments
+@pytest.mark.asyncio
+async def test_del_wrong_number_of_arguments(server: RedisCloneServer) -> None:
+    response = await send_message("DEL")
+    assert response == "ERR wrong number of arguments for 'DEL' command"
+
+
+# Test the del command for the key that does not exist
+@pytest.mark.asyncio
+async def test_del_key_not_exist(server: RedisCloneServer) -> None:
+    response = await send_message("DEL key")
+    assert response == "(integer) 0"
+
+
+# Test the del command for the key that exists
+@pytest.mark.asyncio
+async def test_del_key_exist(server: RedisCloneServer) -> None:
+    response = await send_message("DEL mykey")
+    assert response == "(integer) 1"
+
+
+# Test the get command for the key that does not exist
+@pytest.mark.asyncio
+async def test_get_key_not_exist(server: RedisCloneServer) -> None:
+    response = await send_message("GET mykey")
+    assert response == "(nil)"
