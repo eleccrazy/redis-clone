@@ -63,8 +63,9 @@ class RedisCloneServer:
 
                 # Process the command
                 response = await process_command(command=message, storage=self.storage)
-
-                writer.write(response.encode())  # Send the response back to the client
+                writer.write(
+                    (response + "\n").encode()
+                )  # Send the response back to the client
                 await writer.drain()  # Flush the write buffer
         except Exception as e:
             print(f"Error handling connection from {addr}: {e}")
