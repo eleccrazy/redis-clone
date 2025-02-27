@@ -59,3 +59,13 @@ class Storage:
         _, old_expire_time = self.data[key]
         self.data[key] = (self.data[key][0], expire_time)
         return 1
+
+    def ttl(self, key: str) -> int:
+        """Returns the time-to-live (TTL) of a key in seconds."""
+        if key not in self.data:
+            return -2
+        _, expire_time = self.data[key]
+        if expire_time is None:
+            return -1
+        ttl = expire_time - time.time()
+        return int(ttl)

@@ -178,3 +178,11 @@ async def test_keys_pattern_matching(server: RedisCloneServer) -> None:
 async def test_keys_pattern_matching(server: RedisCloneServer) -> None:
     response = await send_message("KEYS my*")
     assert response == "1) mykey"
+
+
+# Test the expire command for valid key and ttl
+@pytest.mark.asyncio
+async def test_expire_valid_key_ttl(server: RedisCloneServer) -> None:
+    await send_message("SET mykey myvalue")
+    response = await send_message("EXPIRE mykey 10")
+    assert response == "1"
