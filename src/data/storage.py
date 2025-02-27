@@ -6,6 +6,8 @@ This file contains the implementation of the Storage class for the Redis clone s
 Created by Gizachew Bayness Kassa on 2025-02-19
 """
 
+import time
+
 
 class Storage:
     """
@@ -17,14 +19,21 @@ class Storage:
     def __init__(self):
         self.data = {}  # Initialize an empty dictionary to store key-value pairs
 
-    def set(self, key: str, value: str) -> str:
+    def set(self, key: str, value: str, ttl: int = None) -> str:
         """Stores a key-value pair."""
-        self.data[key] = value
+        # Create expiration time if ttl is provided
+        expire_time = ttl + time.time() if ttl is not None else None
+        self.data[key] = (value, expire_time)
         return "OK"
 
     def get(self, key: str) -> str:
         """Retrieves the value of a key, or (nil) if not found."""
-        return self.data.get(key, "(nil)")
+        # Check if the key exists and has not expired
+        value, expire_time = self.data.get(key, (None, None))
+        if expire_time and expire_time < time.time():
+            self.delete(key)
+            return "(nil)"
+        return value if value is not None else "(nil)"
 
     def delete(self, key: str) -> str:
         """Deletes a key if it exists."""
@@ -32,4 +41,21 @@ class Storage:
 
     def keys(self) -> str:
         """Returns a list of all keys in the storage."""
-        return list(self.data.keys())
+        valid_keys = [
+            key
+            for key, (_, expire_time) in self.data.items()
+            if not expire_time or expire_time > time.time()
+        ]
+        return valid_keys
+
+    def expire(self, key: str, ttl: int) -> int:
+        """Sets a time-to-live (TTL) for a key.
+        Returns:
+            1 if the TTL was set, or 0 if the key does not exist.
+        """
+        if key not in self.data:
+            return 0
+        expire_time = ttl + time.time()
+        _, old_expire_time = self.data[key]
+        self.data[key] = (self.data[key][0], expire_time)
+        return 1

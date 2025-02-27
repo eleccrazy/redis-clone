@@ -10,6 +10,7 @@ Created by Gizachew Bayness Kassa on 2025-02-20
 
 from src.data.storage import Storage
 
+from .expire_command import ExpireCommand
 from .key_value import DeleteCommand, GetCommand, SetCommand
 from .keys_command import KeysCommand
 
@@ -38,6 +39,8 @@ async def process_command(command: str, storage: Storage) -> str:
         handler = DeleteCommand()
     elif command_name == "KEYS":
         handler = KeysCommand()
+    elif command_name == "EXPIRE":
+        handler = ExpireCommand()
     else:
         return "Unknown command"
 
