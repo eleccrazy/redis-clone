@@ -12,7 +12,7 @@ from src.data.storage import Storage
 
 from .key_value import DeleteCommand, GetCommand, SetCommand
 from .keys_command import KeysCommand
-from .ttl_commands import ExpireCommand
+from .ttl_commands import ExpireCommand, TTLCommand
 
 
 async def process_command(command: str, storage: Storage) -> str:
@@ -41,7 +41,14 @@ async def process_command(command: str, storage: Storage) -> str:
         handler = KeysCommand()
     elif command_name == "EXPIRE":
         handler = ExpireCommand()
+    elif command_name == "TTL":
+        handler = TTLCommand()
     else:
         return "Unknown command"
 
-    return await handler.execute(storage, *args)
+    # If the response integer, then return as redis like (integer) response
+    response = await handler.execute(storage, *args)
+    # Check the response type is string to use isdigit() method
+    if (isinstance(response, str) and response.isdigit()) or isinstance(response, int):
+        return f"(integer) {response}"
+    return response

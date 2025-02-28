@@ -8,7 +8,7 @@ Created by Gizachew Bayness Kassa on 2025-02-28
 
 import pytest
 
-from src.commands.ttl_commands import ExpireCommand
+from src.commands.ttl_commands import ExpireCommand, TTLCommand
 from src.data.storage import Storage
 
 
@@ -52,3 +52,44 @@ async def test_expire_command_wrong_number_of_arguments():
 
     result = await command.execute(storage, "key1")
     assert result == "ERR wrong number of arguments for 'EXPIRE' command"
+
+
+# Test the TTL command for the key with TTL set
+@pytest.mark.asyncio
+async def test_ttl_command_key_with_ttl():
+    storage = Storage()
+    storage.set("key1", "value1")
+    exp_command = ExpireCommand()
+    await exp_command.execute(storage, "key1", "10")
+
+    command = TTLCommand()
+    result = await command.execute(storage, "key1")
+    assert int(result) > 0
+
+
+# Test the TTL command for the key with no TTL set
+@pytest.mark.asyncio
+async def test_ttl_command_key_with_no_ttl():
+    storage = Storage()
+    storage.set("key1", "value1")
+    command = TTLCommand()
+    result = await command.execute(storage, "key1")
+    assert result == -1
+
+
+# Test with the wrong number of arguments
+@pytest.mark.asyncio
+async def test_ttl_command_wrong_number_of_arguments():
+    storage = Storage()
+    command = TTLCommand()
+    result = await command.execute(storage, "key1", "key2")
+    assert result == "ERR wrong number of arguments for 'TTL' command"
+
+
+# Test with a key that does not exist
+@pytest.mark.asyncio
+async def test_ttl_command_key_does_not_exist():
+    storage = Storage()
+    command = TTLCommand()
+    result = await command.execute(storage, "nonexistent_key")
+    assert result == -2

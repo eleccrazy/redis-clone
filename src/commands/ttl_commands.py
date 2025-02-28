@@ -38,3 +38,25 @@ class ExpireCommand(BaseCommand):
 
         result = storage.expire(key, ttl)
         return str(result)
+
+
+class TTLCommand(BaseCommand):
+    """
+    TTLCommand - A command class for the TTL command in the Redis clone server.
+    """
+
+    async def execute(self, storage: Storage, *args: List[str]) -> str:
+        """
+        Execute the TTL command with the given arguments.
+
+        Usage:
+            TTL key
+        Returns:
+            The remaining time-to-live (TTL) of the key in seconds.
+        """
+        if len(args) != 1:
+            return "ERR wrong number of arguments for 'TTL' command"
+        key = args[0]
+
+        ttl = storage.ttl(key)
+        return ttl

@@ -67,5 +67,9 @@ class Storage:
         _, expire_time = self.data[key]
         if expire_time is None:
             return -1
+        # check if the key has expired
+        if expire_time < time.time():
+            self.delete(key)
+            return -2
         ttl = expire_time - time.time()
         return int(ttl)

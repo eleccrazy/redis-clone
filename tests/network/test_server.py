@@ -185,4 +185,4 @@ async def test_keys_pattern_matching(server: RedisCloneServer) -> None:
 async def test_expire_valid_key_ttl(server: RedisCloneServer) -> None:
     await send_message("SET mykey myvalue")
     response = await send_message("EXPIRE mykey 10")
-    assert response == "1"
+    assert response == "(integer) 1"
